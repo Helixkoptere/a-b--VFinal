@@ -17,6 +17,9 @@ label.row{font-size:11.5px;cursor:pointer}
 .btn{background:var(--field);color:var(--fg);border:0;border-radius:8px;padding:5px 11px;font:inherit;font-size:11px;cursor:pointer}
 .btn:hover{filter:brightness(1.2)}.btn.on{background:var(--fg);color:var(--ct);font-weight:600}
 :focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.f{display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--mut)}
+.f input{background:var(--field);border:0;border-radius:8px;color:var(--fg);padding:6px 8px;font:inherit;font-size:11.5px;outline:0;min-width:0}
+.hint{font-size:10.5px;color:var(--mut)}
 </style>
 </head>
 <body>
@@ -29,6 +32,12 @@ label.row{font-size:11.5px;cursor:pointer}
   <label class="row"><input type="checkbox" id="sec"> Afficher les secondes</label>
   <h3>Données</h3>
   <div class="row"><button class="btn" id="rst">Supprimer toutes mes apps</button></div>
+  <h3>Publication GitHub</h3>
+  <p class="hint">Les apps ajoutées par fichier HTML sont publiées dans ce dépôt et apparaissent dans Découvrir pour tout le monde. Utilise un jeton limité à ce dépôt (Contents : lecture et écriture) ; il reste uniquement sur cet appareil.</p>
+  <label class="f">Dépôt<input id="gr" placeholder="pseudo/depot" autocomplete="off"></label>
+  <div class="row"><label class="f">Branche<input id="gb" placeholder="main"></label><label class="f">Dossier source<input id="gd" placeholder="src"></label></div>
+  <label class="f">Jeton<input type="password" id="gt" placeholder="github_pat_…" autocomplete="off"></label>
+  <div class="row"><button class="btn" id="gs">Enregistrer</button><button class="btn" id="gx">Effacer</button></div>
 </section>
 <script>
 /* API fournie par index.html (window.parent.OS) ; repli minimal si ouvert seul */
@@ -43,6 +52,10 @@ $('#h24').checked=OS.cfg.h24;$('#sec').checked=OS.cfg.sec;
 $('#h24').onchange=e=>OS.setCfg({h24:e.target.checked});
 $('#sec').onchange=e=>OS.setCfg({sec:e.target.checked});
 $('#rst').onclick=()=>{if(confirm('Supprimer toutes les apps ajoutées ?'))OS.resetApps()};
+const gh=(()=>{try{return JSON.parse(localStorage.getItem('gh')||'{}')}catch(e){return{}}})();
+$('#gr').value=gh.repo||'';$('#gb').value=gh.branch||'';$('#gd').value=gh.dir||'';$('#gt').value=gh.token||'';
+$('#gs').onclick=()=>{localStorage.setItem('gh',JSON.stringify({repo:$('#gr').value.trim(),branch:$('#gb').value.trim(),dir:$('#gd').value.trim(),token:$('#gt').value.trim()}));OS.notify&&OS.notify('Publication GitHub enregistrée')};
+$('#gx').onclick=()=>{localStorage.removeItem('gh');['#gr','#gb','#gd','#gt'].forEach(x=>$(x).value='')};
 </script>
 </body>
 </html>
