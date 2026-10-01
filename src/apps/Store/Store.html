@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ab Store</title>
+<title>App Store</title>
 <style>
 :root{--fg:#f4f4f4;--mut:#9a9a9e;--win:#2a2a2c;--ct:#171717;--field:#3a3a3c;--act:#141414;--hov:rgba(255,255,255,.1);--bd:rgba(255,255,255,.26);--tile:#1e1e1e}
 [data-theme=light]{--fg:#1b1b1d;--mut:#6b6b70;--win:#e6e6ea;--ct:#fbfbfc;--field:#d8d8de;--act:#fff;--hov:rgba(0,0,0,.08);--bd:rgba(0,0,0,.2);--tile:#f3f3f5}
@@ -11,24 +11,25 @@
 html,body{height:100%;background:var(--win);color:var(--fg);font:12px "Open Sans","Segoe UI",system-ui,sans-serif;user-select:none}
 body{display:flex;gap:7px;padding:0 6px 6px}
 aside{width:146px;flex:none;display:flex;flex-direction:column;gap:2px;padding-top:2px}
-.srch,.nav{height:24px;border-radius:12px;display:flex;align-items:center;gap:8px;padding:0 8px;font-size:11.5px}
+.srch,.nav{height:24px;border-radius:12px;display:flex;flex-direction:row;align-items:center;gap:8px;padding:0 8px;font-size:11.5px;color:var(--fg)}
 .srch{background:var(--field);margin-bottom:10px}
-.srch input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--fg);font:inherit;user-select:text}
+.srch input{flex:1;min-width:0;width:100%;padding:0;background:none;border:0;outline:0;color:var(--fg);font:inherit;user-select:text}
 .srch input::placeholder{color:var(--fg);opacity:.85}
-.nav{border:0;background:none;color:var(--fg);font:inherit;font-size:11.5px;cursor:pointer;text-align:left;width:100%}
+.nav{border:0;background:none;font:inherit;font-size:11.5px;cursor:pointer;text-align:left;width:100%}
 .nav:hover{background:var(--hov)}.nav.on{background:var(--act)}
 svg{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
 .gap{height:8px}
 .ct{flex:1;min-width:0;background:var(--ct);border-radius:12px;overflow:auto;padding:6px 10px;display:flex;flex-direction:column;gap:9px;user-select:text}
 h2{font-size:15px;font-weight:400}h3{font-size:12px;margin-top:4px}
-label{display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--mut)}
-input[type=text],input[type=url]{background:var(--field);border:0;border-radius:8px;color:var(--fg);padding:6px 8px;font:inherit;font-size:11.5px;outline:0}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row label{flex-direction:row;color:var(--fg)}
+.f{display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--mut)}
+.f input[type=text],.f input[type=url]{background:var(--field);border:0;border-radius:8px;color:var(--fg);padding:6px 8px;font:inherit;font-size:11.5px;outline:0}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row label{display:flex;gap:5px;align-items:center;font-size:11.5px}
 .btn{background:var(--field);color:var(--fg);border:0;border-radius:8px;padding:5px 11px;font:inherit;font-size:11px;cursor:pointer}
-.btn:hover{filter:brightness(1.2)}.btn.pri{background:var(--fg);color:var(--ct);font-weight:600}
+.btn:hover:not(:disabled){filter:brightness(1.2)}.btn:disabled{opacity:.55;cursor:default}.btn.pri{background:var(--fg);color:var(--ct);font-weight:600}
 .item{display:flex;align-items:center;gap:8px;padding:6px;border-radius:10px;background:var(--win)}
-.tile{width:32px;height:32px;border-radius:8px;background:var(--tile);border:1px solid var(--bd);overflow:hidden;flex:none}
+.tile{width:32px;height:32px;border-radius:8px;background:var(--tile);border:1px solid var(--bd);overflow:hidden;flex:none;display:grid;place-items:center}
 .tile img{width:100%;height:100%;object-fit:cover}
+.mask{width:60%;height:60%;background:var(--fg);-webkit-mask:var(--u) center/contain no-repeat;mask:var(--u) center/contain no-repeat}
 .letter{width:100%;height:100%;display:grid;place-items:center;font-weight:700;font-size:16px;color:#fff}
 .item b{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11.5px}
 .hint{font-size:10.5px;color:var(--mut)}
@@ -50,16 +51,19 @@ input[type=text],input[type=url]{background:var(--field);border:0;border-radius:
 /* API fournie par index.html (window.parent.OS) ; repli minimal si ouvert seul */
 const OS=(()=>{try{if(parent.OS)return parent.OS}catch(e){}
  const g=()=>JSON.parse(localStorage.getItem('apps')||'[]'),s=a=>localStorage.setItem('apps',JSON.stringify(a));
- return{cfg:{theme:'dark'},get apps(){return g()},addApp(a){s([...g(),a]);return true},removeApp(id){s(g().filter(a=>a.id!==id))},open(){},notify(t){console.log(t)}}})();
+ return{cfg:{theme:'dark'},get apps(){return g()},addApp(a){s([...g().filter(x=>x.id!==a.id),a]);return true},removeApp(id){s(g().filter(a=>a.id!==id))},open(){},notify(t){console.log(t)},url:p=>new URL('../../'+p,location.href).href}})();
 document.documentElement.dataset.theme=OS.cfg.theme;
 const $=s=>document.querySelector(s),ct=$('#ct'),q=$('#q');
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const hue=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return h};
-const icon=a=>{const l=`<div class="letter" style="background:hsl(${hue(a.name)} 35% 32%)">${esc((a.name[0]||'?').toUpperCase())}</div>`;
- return a.icon?`<img src="${esc(a.icon)}" alt="" onerror="this.outerHTML=this.dataset.f" data-f="${esc(l)}">`:l};
+const letter=n=>`<div class="letter" style="background:hsl(${hue(n)} 35% 32%)">${esc((n[0]||'?').toUpperCase())}</div>`;
+/* mask=true : icône SVG du dépôt, colorée selon le thème */
+const face=(n,ic,mask)=>!ic?letter(n):mask?`<i class="mask" style="--u:url('${esc(ic)}')"></i>`:`<img src="${esc(ic)}" alt="" onerror="this.outerHTML=this.dataset.f" data-f="${esc(letter(n))}">`;
+const faceApp=a=>face(a.name,a.icon,a.repo&&/\.svg(\?|$)/i.test(a.icon));
 const titles={disc:'Découvrir',work:'Travail',games:'Jeux',mine:'Vos apps',upd:'Mise à jour'};
-let cur='disc';
+let cur='disc',catalog=null;
 
+/* ---------- détection nom / icône ---------- */
 function parseMeta(html,base){
  const d=new DOMParser().parseFromString(html,'text/html');
  const name=(d.querySelector('meta[property="og:title"]')?.content||d.querySelector('meta[name="application-name"]')?.content||d.title||'').trim();
@@ -74,8 +78,56 @@ async function detectUrl(url){
  const u=new URL(url);
  return{name:name||u.hostname.replace(/^www\./,''),icon:ic||u.origin+'/favicon.ico'};
 }
+/* ---------- publication dans le dépôt GitHub (config : Paramètres) ---------- */
+const GH=()=>{try{const c=JSON.parse(localStorage.getItem('gh')||'null');
+ return c&&c.repo&&c.token?{repo:c.repo.trim(),branch:(c.branch||'main').trim(),dir:(c.dir||'src').trim().replace(/^\/+|\/+$/g,''),token:c.token.trim()}:null}catch(e){return null}};
+const enc=s=>new TextEncoder().encode(s);
+const b64=u=>{let s='';for(let i=0;i<u.length;i+=8192)s+=String.fromCharCode(...u.subarray(i,i+8192));return btoa(s)};
+async function api(c,m,p,body){
+ const r=await fetch(`https://api.github.com/repos/${c.repo}/contents/${c.dir?c.dir+'/':''}${p}${m==='GET'?'?ref='+encodeURIComponent(c.branch):''}`,
+  {method:m,headers:{Authorization:'Bearer '+c.token,Accept:'application/vnd.github+json'},body:body?JSON.stringify({...body,branch:c.branch}):undefined});
+ if(m==='GET'&&r.status===404)return null;
+ if(!r.ok)throw new Error('GitHub '+r.status);
+ return r.json();
+}
+const put=async(c,p,bytes,msg)=>api(c,'PUT',p,{message:msg,content:b64(bytes),sha:(await api(c,'GET',p))?.sha});
+async function publish(c,name,html,iconUrl){
+ const cat=await api(c,'GET','apps/catalog.json');let list=[];
+ if(cat)list=JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(cat.content.replace(/\n/g,'')),x=>x.charCodeAt(0))));
+ const base=name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,' ').trim().split(' ').filter(Boolean).map(w=>w[0].toUpperCase()+w.slice(1)).join('')||'App';
+ let dir=base,n=2;const taken=d=>list.some(x=>x.dir===d)||['Settings','Store','Ai','Chat'].includes(d);
+ while(taken(dir))dir=base+n++;
+ await put(c,`apps/${dir}/${dir}.html`,enc(html),`Ajout de l'app ${name}`);
+ let icon=null;
+ if(iconUrl){try{const r=await fetch(iconUrl);if(!r.ok)throw 0;const ct=r.headers.get('content-type')||'';
+  const ext=/svg/.test(ct)||/\.svg(\?|$)/i.test(iconUrl)?'svg':/jpe?g/.test(ct)?'jpg':/webp/.test(ct)?'webp':/gif/.test(ct)?'gif':'png';
+  icon=`icons/${dir}.${ext}`;await put(c,`apps/${dir}/${icon}`,new Uint8Array(await r.arrayBuffer()),`Icône de ${name}`)}
+  catch(e){icon=/^https?:/.test(iconUrl)?iconUrl:null}}
+ list.push({dir,name,icon});
+ await api(c,'PUT','apps/catalog.json',{message:`Catalogue : ${name}`,content:b64(enc(JSON.stringify(list,null,2)+'\n')),sha:cat?.sha});
+ return dir;
+}
+/* ---------- Découvrir : catalogue du dépôt ---------- */
+const entryIcon=e=>!e.icon?'':/^(https?:|data:)/.test(e.icon)?e.icon:OS.url(`apps/${e.dir}/${e.icon}`);
+function drawDiscover(){
+ if(cur!=='disc'||q.value.trim())return;
+ const have=new Set(OS.apps.map(a=>a.id));
+ ct.innerHTML=`<h2>Découvrir</h2>`+(catalog.length?catalog.map(e=>{const id='r_'+e.dir,ic=entryIcon(e),on=have.has(id);
+  return `<div class="item"><div class="tile">${face(e.name,ic,ic&&!/^(https?:|data:)/.test(e.icon)&&/\.svg$/i.test(e.icon))}</div><b>${esc(e.name)}</b><button class="btn ${on?'':'pri'}" data-i="${esc(e.dir)}">${on?'Ouvrir':'Installer'}</button></div>`}).join(''):'<p class="hint">Aucune app disponible pour le moment.</p>');
+ ct.querySelectorAll('[data-i]').forEach(x=>x.onclick=()=>{
+  const e=catalog.find(c=>c.dir===x.dataset.i),id='r_'+e.dir,ex=OS.apps.find(a=>a.id===id);
+  if(ex)return OS.open(ex);
+  OS.addApp({id,name:e.name,icon:entryIcon(e),type:'url',src:OS.url(`apps/${e.dir}/${e.dir}.html`),repo:1});drawDiscover()});
+}
+async function discover(){
+ if(catalog)return drawDiscover();
+ ct.innerHTML='<h2>Découvrir</h2><p class="hint">Chargement…</p>';
+ try{const r=await fetch(OS.url('apps/catalog.json'),{cache:'no-store'});catalog=r.ok?await r.json():[]}catch(e){catalog=[]}
+ drawDiscover();
+}
+/* ---------- Vos apps ---------- */
 const list=(f='')=>{const r=OS.apps.filter(a=>a.name.toLowerCase().includes(f.toLowerCase()));
- return r.length?r.map(a=>`<div class="item"><div class="tile">${icon(a)}</div><b>${esc(a.name)}</b><button class="btn" data-o="${a.id}">Ouvrir</button><button class="btn" data-d="${a.id}">Supprimer</button></div>`).join(''):'<p class="hint">Aucune app pour le moment.</p>'};
+ return r.length?r.map(a=>`<div class="item"><div class="tile">${faceApp(a)}</div><b>${esc(a.name)}</b><button class="btn" data-o="${esc(a.id)}">Ouvrir</button><button class="btn" data-d="${esc(a.id)}">Supprimer</button></div>`).join(''):'<p class="hint">Aucune app pour le moment.</p>'};
 function bind(){
  ct.querySelectorAll('[data-o]').forEach(x=>x.onclick=()=>OS.open(OS.apps.find(a=>a.id===x.dataset.o)));
  ct.querySelectorAll('[data-d]').forEach(x=>x.onclick=()=>{OS.removeApp(x.dataset.d);show(cur,q.value.trim())});
@@ -83,28 +135,39 @@ function bind(){
 function show(s,f=''){
  cur=s;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('on',n.dataset.s===s&&!f));
  if(f){ct.innerHTML=`<h2>Résultats</h2>${list(f)}`;return bind()}
+ if(s==='disc')return discover();
  if(s==='upd')ct.innerHTML=`<h2>${titles[s]}</h2><p class="hint">Toutes vos apps sont à jour.</p>`;
  else if(s!=='mine')ct.innerHTML=`<h2>${titles[s]}</h2>`;
  else{ct.innerHTML=`<h2>${titles[s]}</h2>
  <div class="row"><label><input type="radio" name="t" value="url" checked> Lien</label><label><input type="radio" name="t" value="file"> Fichier HTML</label></div>
- <label id="lu">Adresse de l'app<input type="url" id="url" placeholder="https://exemple.com"></label>
- <label id="lf" hidden>Fichier HTML<input type="file" id="file" accept=".html,.htm,text/html"></label>
- <label>Lien de l'icône (facultatif)<input type="text" id="ic" placeholder="https://exemple.com/icone.png"></label>
- <label>Nom de l'app (facultatif)<input type="text" id="nm" placeholder="Repris de la page si vide"></label>
+ <label class="f" id="lu">Adresse de l'app<input type="url" id="url" placeholder="https://exemple.com"></label>
+ <label class="f" id="lf" hidden>Fichier HTML<input type="file" id="file" accept=".html,.htm,text/html"></label>
+ <p class="hint" id="gh" hidden></p>
+ <label class="f">Lien de l'icône (facultatif)<input type="text" id="ic" placeholder="https://exemple.com/icone.png"></label>
+ <label class="f">Nom de l'app (facultatif)<input type="text" id="nm" placeholder="Repris de la page si vide"></label>
  <div class="row"><button class="btn pri" id="add">Ajouter</button></div>
  <h3>Mes apps</h3><div style="display:flex;flex-direction:column;gap:6px">${list()}</div>`;
  const g=x=>ct.querySelector(x);
- ct.querySelectorAll('[name=t]').forEach(r=>r.onchange=()=>{const f=r.value==='file'&&r.checked;g('#lu').hidden=f;g('#lf').hidden=!f});
+ g('#gh').textContent=GH()?'Un fichier HTML est ajouté au dépôt GitHub : il devient disponible pour tout le monde dans Découvrir (après le déploiement). Il est installé directement chez toi.':'Publication GitHub non configurée (Paramètres) : le fichier HTML sera installé uniquement en local.';
+ ct.querySelectorAll('[name=t]').forEach(r=>r.onchange=()=>{const f=r.value==='file'&&r.checked;g('#lu').hidden=f;g('#lf').hidden=!f;g('#gh').hidden=!f});
  g('#add').onclick=async()=>{
-  const type=ct.querySelector('[name=t]:checked').value;let name=g('#nm').value.trim(),ic=g('#ic').value.trim(),src='';const bt=g('#add');
-  if(type==='url'){src=g('#url').value.trim();if(!src)return OS.notify('Entre une adresse');
-   if(!/^https?:\/\//i.test(src))src='https://'+src;
-   try{new URL(src)}catch(e){return OS.notify('Adresse invalide')}
-   if(!name||!ic){bt.disabled=true;bt.textContent='Détection…';const d=await detectUrl(src);bt.disabled=false;bt.textContent='Ajouter';name=name||d.name;ic=ic||d.icon}
-  }else{const f=g('#file').files[0];if(!f)return OS.notify('Choisis un fichier HTML');
-   src=await f.text();const m=parseMeta(src);name=name||m.name||f.name.replace(/\.html?$/i,'');ic=ic||m.icon}
-  if(!OS.addApp({id:'u'+Date.now(),name,icon:ic,type,src}))return OS.notify('Stockage plein : fichier trop lourd');
-  show('mine')};
+  const type=ct.querySelector('[name=t]:checked').value;let name=g('#nm').value.trim(),ic=g('#ic').value.trim(),src='',id='u'+Date.now();const bt=g('#add');
+  bt.disabled=true;
+  try{
+   if(type==='url'){src=g('#url').value.trim();if(!src)return OS.notify('Entre une adresse');
+    if(!/^https?:\/\//i.test(src))src='https://'+src;
+    try{new URL(src)}catch(e){return OS.notify('Adresse invalide')}
+    if(!name||!ic){bt.textContent='Détection…';const d=await detectUrl(src);name=name||d.name;ic=ic||d.icon}
+   }else{const f=g('#file').files[0];if(!f)return OS.notify('Choisis un fichier HTML');
+    src=await f.text();const m=parseMeta(src);name=name||m.name||f.name.replace(/\.html?$/i,'');ic=ic||m.icon;
+    const c=GH();
+    if(c){bt.textContent='Publication…';
+     try{id='r_'+await publish(c,name,src,ic);OS.notify(name+' publiée dans le dépôt : disponible dans Découvrir après le déploiement')}
+     catch(e){OS.notify('Publication impossible ('+e.message+') : app installée en local')}}
+    else OS.notify('Publication GitHub non configurée : app installée en local')}
+   if(!OS.addApp({id,name,icon:ic,type,src}))return OS.notify('Stockage plein : fichier trop lourd');
+   catalog=null;show('mine');
+  }finally{bt.disabled=false;bt.textContent='Ajouter'}};
  }
  bind();
 }
