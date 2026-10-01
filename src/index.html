@@ -69,10 +69,12 @@ const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v)
 let apps=store.get('apps',[]);
 let cfg=Object.assign({theme:'dark',h24:true,sec:false},store.get('cfg',{}));
 const I={bell:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width=".9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2a4 4 0 0 0-4 4v2.5L2.6 11h10.8L12 8.5V6a4 4 0 0 0-4-4zM6.5 13a1.5 1.5 0 0 0 3 0"/></svg>'};
-/* Apps système : 'Dossier:Nom affiché' -> src/apps/Dossier/Dossier.html + src/apps/Dossier/icons/Dossier.svg
+/* ROOT = chemin vers le dossier src/ : vide quand index.html est dans src/ (ton dépôt), 'src/' si la page est servie depuis la racine.
+   Apps système : 'Dossier:Nom affiché' -> src/apps/Dossier/Dossier.html + src/apps/Dossier/icons/Dossier.svg
    Pour ajouter une app : ajoute par exemple 'Ai:Ai' ou 'Chat:Chat' à cette liste. */
-const BUILTIN=['Parametres:Paramètres','AppStore:App Store'].map(s=>{const[d,n]=s.split(':');
- return{id:d,name:n,def:1,src:`src/apps/${d}/${d}.html`,icon:`src/apps/${d}/icons/${d}.svg`}});
+const ROOT=/\/src(\/|$)/.test(location.pathname)?'':'src/';
+const BUILTIN=['Settings:Paramètres','Store:App Store'].map(s=>{const[d,n]=s.split(':');
+ return{id:d,name:n,def:1,src:`${ROOT}apps/${d}/${d}.html`,icon:`${ROOT}apps/${d}/icons/${d}.svg`}});
 const iconCache={};
 function loadIcons(root){root.querySelectorAll('.svgi').forEach(el=>{const u=el.dataset.src;
  if(iconCache[u])return el.innerHTML=iconCache[u];
